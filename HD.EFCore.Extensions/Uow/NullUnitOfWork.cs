@@ -4,11 +4,12 @@ namespace HD.EFCore.Extensions.Uow
 {
     public class NullUnitOfWork : IUnitOfWork
     {
-        public IDbContextTransaction Tran { get; private set; }
+        MainUnitOfWork _mainUoW;
+        public IDbContextTransaction Tran => _mainUoW.Tran;
 
-        public NullUnitOfWork(IDbContextTransaction tran)
+        public NullUnitOfWork(IUnitOfWork mainUoW)
         {
-            Tran = tran;
+            _mainUoW = mainUoW as MainUnitOfWork ?? throw new System.Exception("NullUnitOfWork需要一个MainUnitOfWork的参数");
         }
 
         public void Commit()
@@ -16,6 +17,7 @@ namespace HD.EFCore.Extensions.Uow
         }
         public void Rollback()
         {
+            _mainUoW.RollbackIncrement();
         }
 
         public void Dispose()

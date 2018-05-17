@@ -12,7 +12,7 @@ namespace HD.EFCore.Extensions.Test
             _sp = sp;
         }
 
-        public void Test()
+        public void Tran()
         {
             using (var scope = _sp.CreateScope())
             {
@@ -52,10 +52,8 @@ namespace HD.EFCore.Extensions.Test
             {
                 try
                 {
-                    db.Aspnetusers.Add(new Aspnetusers
-                    {
+                    throw new Exception("测试回滚");
 
-                    });
                     db.SaveChanges();
 
                     uow.Commit();

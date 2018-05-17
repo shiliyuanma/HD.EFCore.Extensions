@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Threading;
 
 namespace HD.EFCore.Extensions.Uow
 {
@@ -8,6 +9,7 @@ namespace HD.EFCore.Extensions.Uow
         DbContext _db;
         IDbContextTransaction _tran;
         IUnitOfWorkAccessor _uowAccessor;
+        int _rollbackCount;
         bool _isDisposed;
 
         public IDbContextTransaction Tran => _tran;
@@ -21,7 +23,14 @@ namespace HD.EFCore.Extensions.Uow
 
         public void Commit()
         {
-            _tran?.Commit();
+            if(_rollbackCount > 0)
+            {
+                _tran?.Rollback();
+            }
+            else
+            {
+                _tran?.Commit();
+            }
         }
 
         public void Rollback()
@@ -37,6 +46,11 @@ namespace HD.EFCore.Extensions.Uow
             _uowAccessor.UoW = null;
 
             _isDisposed = true;
+        }
+
+        public void RollbackIncrement()
+        {
+            Interlocked.Increment(ref _rollbackCount);
         }
     }
 }

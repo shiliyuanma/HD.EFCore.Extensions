@@ -32,7 +32,7 @@ namespace HD.EFCore.Extensions.Uow
             }
             else
             {
-                return new NullUnitOfWork(_uowAccessor.UoW.Tran);
+                return new NullUnitOfWork(_uowAccessor.UoW);
             }
         }
     }

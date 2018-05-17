@@ -18,6 +18,8 @@ namespace HD.EFCore.Extensions.Test
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddUnitOfWork();
+
             services.AddSingleton<IHostedService, HostedService>();
             services.AddTransient<UnitOfWorkService, UnitOfWorkService>();
 
