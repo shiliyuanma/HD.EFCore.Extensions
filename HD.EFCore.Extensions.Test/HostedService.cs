@@ -9,10 +9,12 @@ namespace HD.EFCore.Extensions.Test
     {
         MasterHDDbContext _masterDb;
         SlaveHDDbContext _slaveDb;
-        public HostedService(MasterHDDbContext masterDb, SlaveHDDbContext slaveDb)
+        UnitOfWorkService _uowSrv;
+        public HostedService(MasterHDDbContext masterDb, SlaveHDDbContext slaveDb, UnitOfWorkService uowSrv)
         {
             _masterDb = masterDb;
             _slaveDb = slaveDb;
+            _uowSrv = uowSrv;
 
             var users1 = _masterDb.Aspnetusers.ToList();
             var users2 = _slaveDb.Aspnetusers.ToList();
@@ -20,7 +22,7 @@ namespace HD.EFCore.Extensions.Test
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-
+            _uowSrv.Test();
             return Task.CompletedTask;
         }
 

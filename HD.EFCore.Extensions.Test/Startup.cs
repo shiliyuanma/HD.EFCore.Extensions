@@ -19,6 +19,7 @@ namespace HD.EFCore.Extensions.Test
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHostedService, HostedService>();
+            services.AddTransient<UnitOfWorkService, UnitOfWorkService>();
 
             //自己扩展：使用DbContextPool的方式注入读写分离dbcontext
             services.AddDbContextPoolEnhance<MasterHDDbContext>(q => q.UseMySql<MasterHDDbContext>("Server=192.168.4.127;Port=3306;Database=sso;Uid=root;Pwd=870224;"));
