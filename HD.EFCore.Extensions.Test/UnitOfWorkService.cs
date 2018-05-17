@@ -43,8 +43,9 @@ namespace HD.EFCore.Extensions.Test
             }
         }
 
-        private void SubTran(IServiceScope scope)
+        public void SubTran(IServiceScope scope = null)
         {
+            scope = scope ?? _sp.CreateScope();
             var db = scope.ServiceProvider.GetService<MasterHDDbContext>();
             var uowMgr = scope.ServiceProvider.GetService<IUnitOfWorkManager>();
 

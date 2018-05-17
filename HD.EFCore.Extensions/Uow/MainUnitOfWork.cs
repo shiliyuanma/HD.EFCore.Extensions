@@ -44,6 +44,7 @@ namespace HD.EFCore.Extensions.Uow
 
             _tran?.Dispose();
             _uowAccessor.UoW = null;
+            _rollbackCount = 0;
 
             _isDisposed = true;
         }

@@ -22,6 +22,7 @@ namespace HD.EFCore.Extensions.Test
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            _uowSrv.SubTran();
             _uowSrv.Tran();
             return Task.CompletedTask;
         }

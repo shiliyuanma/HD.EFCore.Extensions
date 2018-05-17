@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Authors>huangdong</Authors>
+    <Company>huangdong</Company>
+    <Description>1.扩展DbContextPool，使其支持多DbContext注入。
+2.实现简易版的UnitOfWork模型。</Description>
   </PropertyGroup>
 
   <ItemGroup>
