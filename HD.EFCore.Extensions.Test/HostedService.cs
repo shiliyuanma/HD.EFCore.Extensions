@@ -10,12 +10,12 @@ namespace HD.EFCore.Extensions.Test
     {
         MasterDbContext _masterDb;
         SlaveDbContext _slaveDb;
-        UnitOfWorkService _uowSrv;
-        public HostedService(MasterDbContext masterDb, SlaveDbContext slaveDb, UnitOfWorkService uowSrv)
+        TestService _testSrv;
+        public HostedService(MasterDbContext masterDb, SlaveDbContext slaveDb, TestService uowSrv)
         {
             _masterDb = masterDb;
             _slaveDb = slaveDb;
-            _uowSrv = uowSrv;
+            _testSrv = uowSrv;
 
             var blogs1 = _masterDb.Blog.ToList();
             var blogs2 = _slaveDb.Blog.ToList();
@@ -23,8 +23,9 @@ namespace HD.EFCore.Extensions.Test
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _uowSrv.SubTran();
-            _uowSrv.Tran();
+            _testSrv.TestCache();
+            _testSrv.SubTran();
+            _testSrv.Tran();
             return Task.CompletedTask;
         }
 

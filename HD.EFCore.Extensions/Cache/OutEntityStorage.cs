@@ -1,25 +1,20 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace HD.EFCore.Extensions.Cache
 {
-    public class MemoryEntityStorage<TEntity, TPrimaryKey> : IEntityStorage<TEntity, TPrimaryKey> where TEntity : class
+    public class OutEntityStorage<TEntity, TPrimaryKey> : IEntityStorage<TEntity, TPrimaryKey> where TEntity : class
     {
-        static readonly ConcurrentDictionary<string, object> cache = new ConcurrentDictionary<string, object>();
-
-        public MemoryEntityStorage()
+        EntityCacheOptions _options;
+        public OutEntityStorage(IOptions<EntityCacheOptions> options)
         {
+            _options = options.Value;
         }
 
         public TEntity Get(TPrimaryKey key)
         {
-            if (cache.TryGetValue(GenKey(key), out var entity))
-            {
-                return entity as TEntity;
-            }
-            return null;
+            return _options.Get(GenKey(key)) as TEntity;
         }
 
         public IEnumerable<TEntity> Gets(IEnumerable<TPrimaryKey> keys)
@@ -41,7 +36,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public bool Set(TPrimaryKey key, TEntity entity)
         {
-            return cache.TryAdd(GenKey(key), entity);
+            return _options.Set(GenKey(key), entity);
         }
 
         public bool Sets(Dictionary<TPrimaryKey, TEntity> entitys)
@@ -60,7 +55,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public bool Remove(TPrimaryKey key)
         {
-            return cache.TryRemove(GenKey(key), out var obj);
+            return _options.Del(GenKey(key));
         }
 
         public bool Removes(IEnumerable<TPrimaryKey> keys)
@@ -83,10 +78,10 @@ namespace HD.EFCore.Extensions.Cache
         }
     }
 
-    public class MemoryEntityStorage<TEntity, TPrimaryKey, TCacheItem> : MemoryEntityStorage<TEntity, TPrimaryKey>, IEntityStorage<TEntity, TPrimaryKey, TCacheItem> where TEntity : class where TCacheItem : class
+    public class OutEntityStorage<TEntity, TPrimaryKey, TCacheItem> : OutEntityStorage<TEntity, TPrimaryKey>, IEntityStorage<TEntity, TPrimaryKey, TCacheItem> where TEntity : class where TCacheItem : class
     {
         EntityCacheOptions _options;
-        public MemoryEntityStorage(IOptions<EntityCacheOptions> options)
+        public OutEntityStorage(IOptions<EntityCacheOptions> options) : base(options)
         {
             _options = options.Value;
         }

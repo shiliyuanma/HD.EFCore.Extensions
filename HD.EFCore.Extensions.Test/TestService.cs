@@ -1,16 +1,31 @@
-﻿using HD.EFCore.Extensions.Test.Data;
+﻿using HD.EFCore.Extensions.Cache;
+using HD.EFCore.Extensions.Test.Cache;
+using HD.EFCore.Extensions.Test.Data;
+using HD.EFCore.Extensions.Test.Entity;
 using HD.EFCore.Extensions.Uow;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace HD.EFCore.Extensions.Test
 {
-    public class UnitOfWorkService
+    public class TestService
     {
         IServiceProvider _sp;
-        public UnitOfWorkService(IServiceProvider sp)
+        public TestService(IServiceProvider sp)
         {
             _sp = sp;
+        }
+
+        public void TestCache()
+        {
+            using (var scope = _sp.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetService<MasterDbContext>();
+                var cache = scope.ServiceProvider.GetService<IEntityCache<Blog, int, BlogItem>>();
+
+                var m = cache.Get(db, 1);
+
+            }
         }
 
         public void Tran()

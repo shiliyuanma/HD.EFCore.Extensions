@@ -1,4 +1,6 @@
-﻿using HD.EFCore.Extensions.Test.Data;
+﻿using HD.EFCore.Extensions.Test.Cache;
+using HD.EFCore.Extensions.Test.Data;
+using HD.EFCore.Extensions.Test.Entity;
 using HD.Host.Abstractors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +22,19 @@ namespace HD.EFCore.Extensions.Test
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddUnitOfWork();
+            services.AddEntityCache(options =>
+            {
+                options.Map = item =>
+                {
+                    if (item.EntityType == typeof(Blog))
+                    {
+                        var m = item.EntityVal as Blog;
+                        return new BlogItem { Id = m.Id, Title = m.Title, Body = m.Body };
+                    }
+                    return null;
+                };
+            });
 
-            services.AddSingleton<IHostedService, HostedService>();
-            services.AddTransient<UnitOfWorkService, UnitOfWorkService>();
 
             //自己扩展：使用DbContextPool的方式注入读写分离dbcontext
             services.AddDbContextPoolEnhance<MasterDbContext>(q => q.UseMySql<MasterDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
@@ -31,6 +43,11 @@ namespace HD.EFCore.Extensions.Test
             //原生ef注入读写分离dbcontext的方式（缺点是不能使用DbContextPool的方式注入）
             //services.AddDbContext<MasterDbContext>(q => ((DbContextOptionsBuilder<MasterDbContext>)q).UseMySql<MasterHDDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
             //services.AddDbContext<SlaveDbContext>(q => ((DbContextOptionsBuilder<SlaveDbContext>)q).UseMySql<SlaveHDDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
+
+
+            //
+            services.AddSingleton<IHostedService, HostedService>();
+            services.AddTransient<TestService, TestService>();
         }
     }
 }
