@@ -26,9 +26,9 @@ namespace EntityFrameworkCore.PrimaryKey
                 type =>
                 {
                     PropertyInfo[] keyProperties;
-                    using (var con = (DbContext)Activator.CreateInstance(type))
+                    //using (var con = (DbContext)Activator.CreateInstance(type))
                     { // Make a new instance inside the lambda so we don't capture the parameter
-                        var keyNames = con.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties.Select(x => x.Name);
+                        var keyNames = context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties.Select(x => x.Name);
                         keyProperties = typeof(TEntity).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => keyNames.Contains(x.Name)).ToArray();
                     }
                     return entity =>

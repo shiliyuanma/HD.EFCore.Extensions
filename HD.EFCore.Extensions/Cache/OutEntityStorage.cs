@@ -25,13 +25,20 @@ namespace HD.EFCore.Extensions.Cache
             }
 
             var result = new List<TEntity>();
-            foreach (var key in keys)
+            if (_options.Gets != null)
             {
-                var entity = Get(key);
-                if (entity != null)
-                    result.Add(entity);
+                result = _options.Gets(keys.Select(q => GenKey(q)))?.Select(q => q as TEntity).ToList();
             }
-            return result.Count > 0 ? result : null;
+            else
+            {
+                foreach (var key in keys)
+                {
+                    var entity = Get(key);
+                    if (entity != null)
+                        result.Add(entity);
+                }
+            }
+            return result?.Count > 0 ? result : null;
         }
 
         public bool Set(TPrimaryKey key, TEntity entity)
@@ -46,9 +53,16 @@ namespace HD.EFCore.Extensions.Cache
                 return false;
             }
 
-            foreach (var item in entitys)
+            if (_options.Sets != null)
             {
-                Set(item.Key, item.Value);
+                return _options.Sets(entitys.Select(q => GenKey(q.Key)), entitys.Select(q => q.Value));
+            }
+            else
+            {
+                foreach (var item in entitys)
+                {
+                    Set(item.Key, item.Value);
+                }
             }
             return true;
         }

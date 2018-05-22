@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace HD.EFCore.Extensions.Cache
 {
@@ -63,7 +64,7 @@ namespace HD.EFCore.Extensions.Cache
             return entitys;
         }
 
-        public IEnumerable<TEntity> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression, string keyName = "Id")
+        public IEnumerable<TEntity> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression)
         {
             var entitys = _storage.Gets(keys);
             if (entitys?.Count() > 0)
@@ -74,7 +75,7 @@ namespace HD.EFCore.Extensions.Cache
             entitys = db.Set<TEntity>().Where(expression).ToList();
             if (entitys != null && entitys.Count() > 0)
             {
-                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => v));
+                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k).First().Value), v => v));
             }
             return entitys;
         }
@@ -103,14 +104,13 @@ namespace HD.EFCore.Extensions.Cache
 
         private Expression<Func<TEntity, bool>> CreateContainsExpressionForId(IEnumerable<TPrimaryKey> ids, string keyName = "Id")
         {
-            var lambdaParam = Expression.Parameter(typeof(TEntity));
+            var parameterExp = Expression.Parameter(typeof(TEntity), "type");
+            var propertyExp = Expression.Property(parameterExp, keyName);
+            var method = typeof(IEnumerable<TPrimaryKey>).GetMethod("Contains", new[] { typeof(IEnumerable<TPrimaryKey>) });
+            var someValue = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
+            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
 
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(keyName, typeof(TPrimaryKey))
-                );
-
-            return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
+            return Expression.Lambda<Func<TEntity, bool>>(containsMethodExp, parameterExp);
         }
     }
 
@@ -173,7 +173,7 @@ namespace HD.EFCore.Extensions.Cache
             return null;
         }
 
-        public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression, string keyName = "Id")
+        public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression)
         {
             var entitys = _storage.Gets(keys);
             if (entitys?.Count() > 0)
@@ -184,7 +184,7 @@ namespace HD.EFCore.Extensions.Cache
             entitys = db.Set<TEntity>().Where(expression).ToList();
             if (entitys != null && entitys.Count() > 0)
             {
-                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => v));
+                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k).First().Value), v => v));
                 return entitys.Select(q => _storage.Map(q));
             }
             return null;
@@ -214,14 +214,13 @@ namespace HD.EFCore.Extensions.Cache
 
         private Expression<Func<TEntity, bool>> CreateContainsExpressionForId(IEnumerable<TPrimaryKey> ids, string keyName = "Id")
         {
-            var lambdaParam = Expression.Parameter(typeof(TEntity));
+            var parameterExp = Expression.Parameter(typeof(TEntity), "type");
+            var propertyExp = Expression.Property(parameterExp, keyName);
+            var method = typeof(IEnumerable<TPrimaryKey>).GetMethod("Contains", new[] { typeof(IEnumerable<TPrimaryKey>) });
+            var someValue = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
+            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
 
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(keyName, typeof(TPrimaryKey))
-                );
-
-            return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
+            return Expression.Lambda<Func<TEntity, bool>>(containsMethodExp, parameterExp);
         }
     }
 }
