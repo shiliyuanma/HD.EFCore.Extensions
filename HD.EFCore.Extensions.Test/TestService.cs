@@ -5,6 +5,7 @@ using HD.EFCore.Extensions.Test.Entity;
 using HD.EFCore.Extensions.Uow;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 
 namespace HD.EFCore.Extensions.Test
 {
@@ -23,7 +24,7 @@ namespace HD.EFCore.Extensions.Test
                 var db = scope.ServiceProvider.GetService<MasterDbContext>();
                 var cache = scope.ServiceProvider.GetService<IEntityCache<Blog, int, BlogItem>>();
 
-                var m = cache.Get(db, 1);
+                var m = cache.Gets(db, new List<int> { 1, 2 });
 
             }
         }
@@ -40,7 +41,7 @@ namespace HD.EFCore.Extensions.Test
                     try
                     {
 
-                        
+
 
                         SubTran(scope);
 

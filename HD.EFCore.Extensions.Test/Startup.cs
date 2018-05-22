@@ -24,11 +24,11 @@ namespace HD.EFCore.Extensions.Test
             services.AddUnitOfWork();
             services.AddEntityCache(options =>
             {
-                options.Map = item =>
+                options.Map = (entityType, entityVal) =>
                 {
-                    if (item.EntityType == typeof(Blog))
+                    if (entityType == typeof(Blog))
                     {
-                        var m = item.EntityVal as Blog;
+                        var m = entityVal as Blog;
                         return new BlogItem { Id = m.Id, Title = m.Title, Body = m.Body };
                     }
                     return null;

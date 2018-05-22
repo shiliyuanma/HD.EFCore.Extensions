@@ -88,7 +88,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public TCacheItem Map(TEntity entity)
         {
-            return _options.Map != null ? _options.Map(new MapItem { EntityType = typeof(TEntity), EntityVal = entity }) as TCacheItem : default(TCacheItem);
+            return _options.Map != null ? _options.Map(typeof(TEntity), entity) as TCacheItem : default(TCacheItem);
         }
     }
 }

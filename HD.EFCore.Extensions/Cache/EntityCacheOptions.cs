@@ -9,14 +9,11 @@ namespace HD.EFCore.Extensions.Cache
         public Func<string, object, bool> Set;
 
         public Func<string, bool> Del;
-
-        public Func<MapItem, object> Map;
-    }
-
-    public class MapItem
-    {
-        public Type EntityType { get; set; }
-
-        public object EntityVal { get; set; }
+        /// <summary>
+        /// item1: entity type
+        /// item2: entity value
+        /// item3: CacheItem value
+        /// </summary>
+        public Func<Type, object, object> Map;
     }
 }
