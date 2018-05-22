@@ -8,7 +8,10 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddEntityCache(this IServiceCollection services)
         {
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,>), typeof(MemoryEntityStorage<,>)));
+            services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,,>), typeof(MemoryEntityStorage<,,>)));
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,>), typeof(EntityCache<,>)));
+            services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,,>), typeof(EntityCache<,,>)));
+
             return services;
         }
     }
