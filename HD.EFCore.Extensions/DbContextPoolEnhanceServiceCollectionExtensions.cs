@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     ///     Extension methods for setting up Entity Framework related services in an <see cref="IServiceCollection" />.
     /// </summary>
-    public static class EntityFrameworkServiceCollectionExtensions
+    public static class DbContextPoolEnhanceServiceCollectionExtensions
     {
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
