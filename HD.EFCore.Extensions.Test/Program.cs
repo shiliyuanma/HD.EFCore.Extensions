@@ -1,4 +1,5 @@
-﻿using HD.Host;
+﻿using HD.EFCore.Extensions.Test.Data;
+using HD.Host;
 using HD.Host.Abstractors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +23,7 @@ namespace HD.EFCore.Extensions.Test
                     .Build())
                 .ConfigureServices(services =>
                 {
-                    services.AddDbContextPool<HDDbContext>(q => q.UseMySql("Server=119.23.168.162;Port=53326;Database=fm_sso;Uid=betareader;Pwd=V6Wq8Z4mxihz;"));
+                    services.AddDbContextPool<MyDbContext>(q => q.UseMySql("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
                 })
                 .UseStartup<Startup>()
                 .Build();

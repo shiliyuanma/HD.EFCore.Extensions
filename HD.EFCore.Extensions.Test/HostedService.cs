@@ -1,4 +1,5 @@
-﻿using HD.Host.Abstractors;
+﻿using HD.EFCore.Extensions.Test.Data;
+using HD.Host.Abstractors;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,17 +8,17 @@ namespace HD.EFCore.Extensions.Test
 {
     public class HostedService : IHostedService
     {
-        MasterHDDbContext _masterDb;
-        SlaveHDDbContext _slaveDb;
+        MasterDbContext _masterDb;
+        SlaveDbContext _slaveDb;
         UnitOfWorkService _uowSrv;
-        public HostedService(MasterHDDbContext masterDb, SlaveHDDbContext slaveDb, UnitOfWorkService uowSrv)
+        public HostedService(MasterDbContext masterDb, SlaveDbContext slaveDb, UnitOfWorkService uowSrv)
         {
             _masterDb = masterDb;
             _slaveDb = slaveDb;
             _uowSrv = uowSrv;
 
-            var users1 = _masterDb.Aspnetusers.ToList();
-            var users2 = _slaveDb.Aspnetusers.ToList();
+            var blogs1 = _masterDb.Blog.ToList();
+            var blogs2 = _slaveDb.Blog.ToList();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

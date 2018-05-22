@@ -1,4 +1,5 @@
-﻿using HD.EFCore.Extensions.Uow;
+﻿using HD.EFCore.Extensions.Test.Data;
+using HD.EFCore.Extensions.Uow;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -16,7 +17,7 @@ namespace HD.EFCore.Extensions.Test
         {
             using (var scope = _sp.CreateScope())
             {
-                var db = scope.ServiceProvider.GetService<MasterHDDbContext>();
+                var db = scope.ServiceProvider.GetService<MasterDbContext>();
                 var uowMgr = scope.ServiceProvider.GetService<IUnitOfWorkManager>();
 
                 using (var uow = uowMgr.Begin(db))
@@ -24,11 +25,7 @@ namespace HD.EFCore.Extensions.Test
                     try
                     {
 
-                        db.Aspnetusers.Add(new Aspnetusers
-                        {
-
-                        });
-                        db.SaveChanges();
+                        
 
                         SubTran(scope);
 
@@ -46,7 +43,7 @@ namespace HD.EFCore.Extensions.Test
         public void SubTran(IServiceScope scope = null)
         {
             scope = scope ?? _sp.CreateScope();
-            var db = scope.ServiceProvider.GetService<MasterHDDbContext>();
+            var db = scope.ServiceProvider.GetService<MasterDbContext>();
             var uowMgr = scope.ServiceProvider.GetService<IUnitOfWorkManager>();
 
             using (var uow = uowMgr.Begin(db))

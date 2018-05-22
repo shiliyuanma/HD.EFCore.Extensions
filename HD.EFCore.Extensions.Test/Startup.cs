@@ -1,4 +1,5 @@
-﻿using HD.Host.Abstractors;
+﻿using HD.EFCore.Extensions.Test.Data;
+using HD.Host.Abstractors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -7,11 +8,11 @@ namespace HD.EFCore.Extensions.Test
 {
     public class Startup
     {
-        HDDbContext _ctx;
-        public Startup(HDDbContext ctx)
+        MyDbContext _ctx;
+        public Startup(MyDbContext ctx)
         {
             _ctx = ctx;
-            var users = _ctx.Aspnetusers.ToList();
+            var blogs = _ctx.Blog.ToList();
         }
         /// <summary>
         /// 配置依赖注入
@@ -24,12 +25,12 @@ namespace HD.EFCore.Extensions.Test
             services.AddTransient<UnitOfWorkService, UnitOfWorkService>();
 
             //自己扩展：使用DbContextPool的方式注入读写分离dbcontext
-            services.AddDbContextPoolEnhance<MasterHDDbContext>(q => q.UseMySql<MasterHDDbContext>("Server=192.168.4.127;Port=3306;Database=sso;Uid=root;Pwd=870224;"));
-            services.AddDbContextPoolEnhance<SlaveHDDbContext>(q => q.UseMySql<SlaveHDDbContext>("Server=119.23.168.162;Port=53326;Database=fm_sso;Uid=betareader;Pwd=V6Wq8Z4mxihz;"));
+            services.AddDbContextPoolEnhance<MasterDbContext>(q => q.UseMySql<MasterDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
+            services.AddDbContextPoolEnhance<SlaveDbContext>(q => q.UseMySql<SlaveDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
 
             //原生ef注入读写分离dbcontext的方式（缺点是不能使用DbContextPool的方式注入）
-            //services.AddDbContext<MasterHDDbContext>(q => ((DbContextOptionsBuilder<MasterHDDbContext>)q).UseMySql<MasterHDDbContext>("Server=192.168.4.127;Port=3306;Database=sso;Uid=root;Pwd=870224;"));
-            //services.AddDbContext<SlaveHDDbContext>(q => ((DbContextOptionsBuilder<SlaveHDDbContext>)q).UseMySql<SlaveHDDbContext>("Server=119.23.168.162;Port=53326;Database=fm_sso;Uid=betareader;Pwd=V6Wq8Z4mxihz;"));
+            //services.AddDbContext<MasterDbContext>(q => ((DbContextOptionsBuilder<MasterDbContext>)q).UseMySql<MasterHDDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
+            //services.AddDbContext<SlaveDbContext>(q => ((DbContextOptionsBuilder<SlaveDbContext>)q).UseMySql<SlaveHDDbContext>("Server=192.168.4.157;Port=3306;Database=shiliyuanma;Uid=root;Pwd=hd123456;"));
         }
     }
 }

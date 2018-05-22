@@ -107,7 +107,7 @@ namespace HD.EFCore.Extensions.Cache
 
             var lambdaBody = Expression.Equal(
                 Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(id, typeof(TPrimaryKey))
+                Expression.Constant(keyName, typeof(TPrimaryKey))
                 );
 
             return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
@@ -218,7 +218,7 @@ namespace HD.EFCore.Extensions.Cache
 
             var lambdaBody = Expression.Equal(
                 Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(id, typeof(TPrimaryKey))
+                Expression.Constant(keyName, typeof(TPrimaryKey))
                 );
 
             return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
