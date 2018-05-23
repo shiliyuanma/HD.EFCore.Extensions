@@ -25,13 +25,14 @@ namespace HD.EFCore.Extensions.Test
                 var db = scope.ServiceProvider.GetService<MasterDbContext>();
                 var cache1 = scope.ServiceProvider.GetService<IEntityCache<Blog, int>>();
                 var cache2 = scope.ServiceProvider.GetService<IEntityCache<Blog, int, BlogItem>>();
-
-                var m = cache1.Get(db, 1);
-
-
                 var keys = new List<int> { 1, 2 };
-                var m1 = cache2.Gets(db, keys, q => keys.Contains(q.Id))?.ToList();
-                var m2 = cache2.Gets(db, keys)?.ToList();
+
+                var m1 = cache1.Get(db, 1);
+                var m2 = cache1.Gets(db, keys);
+
+
+                var mm1 = cache2.Gets(db, keys)?.ToList();
+                var mm2 = cache2.Gets(db, keys, q => keys.Contains(q.Id))?.ToList();
 
             }
         }

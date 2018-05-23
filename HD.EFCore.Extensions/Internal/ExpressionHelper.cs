@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace HD.EFCore.Extensions.Internal
@@ -20,13 +21,19 @@ namespace HD.EFCore.Extensions.Internal
 
         public static Expression<Func<TEntity, bool>> CreateContainsExpressionForId<TEntity, TPrimaryKey>(IEnumerable<TPrimaryKey> ids, string keyName = "Id")
         {
-            var parameterExp = Expression.Parameter(typeof(TEntity), "type");
-            var propertyExp = Expression.Property(parameterExp, keyName);
-            var method = typeof(IEnumerable<TPrimaryKey>).GetMethod("Contains", new[] { typeof(IEnumerable<TPrimaryKey>) });
-            var someValue = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
-            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+            var parameter = Expression.Parameter(typeof(TEntity), "q");
+            var property = Expression.Property(parameter, keyName);
 
-            return Expression.Lambda<Func<TEntity, bool>>(containsMethodExp, parameterExp);
+            var method = typeof(Enumerable).
+                                GetMethods().
+                                Where(x => x.Name == "Contains").
+                                Single(x => x.GetParameters().Length == 2).
+                                MakeGenericMethod(typeof(TPrimaryKey));
+
+            var value = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
+            var containsMethod = Expression.Call(method, value, property); 
+
+            return Expression.Lambda<Func<TEntity, bool>>(containsMethod, parameter);
         }
     }
 }

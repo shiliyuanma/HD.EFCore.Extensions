@@ -51,8 +51,10 @@ namespace HD.EFCore.Extensions.Cache
 
         public IEnumerable<TEntity> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, string keyName = "Id")
         {
+            if (keys == null || keys.Count() == 0) return null;
+
             var entitys = _storage.Gets(keys);
-            if (entitys?.Count() > 0)
+            if (entitys?.Count() == keys.Count())
             {
                 return entitys;
             }
@@ -67,8 +69,10 @@ namespace HD.EFCore.Extensions.Cache
 
         public IEnumerable<TEntity> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression)
         {
+            if (keys == null || keys.Count() == 0) return null;
+
             var entitys = _storage.Gets(keys);
-            if (entitys?.Count() > 0)
+            if (entitys?.Count() == keys.Count())
             {
                 return entitys;
             }
@@ -114,10 +118,10 @@ namespace HD.EFCore.Extensions.Cache
             if (entity != null)
             {
                 cacheItem = Map(entity);
-                _storage.Set(key, cacheItem);
-                return cacheItem;
+                if (cacheItem != null)
+                    _storage.Set(key, cacheItem);
             }
-            return null;
+            return cacheItem;
         }
 
         public TCacheItem Get(DbContext db, TPrimaryKey key, Expression<Func<TEntity, bool>> expression)
@@ -132,16 +136,18 @@ namespace HD.EFCore.Extensions.Cache
             if (entity != null)
             {
                 cacheItem = Map(entity);
-                _storage.Set(key, cacheItem);
-                return cacheItem;
+                if (cacheItem != null)
+                    _storage.Set(key, cacheItem);
             }
-            return null;
+            return cacheItem;
         }
 
         public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, string keyName = "Id")
         {
+            if (keys == null || keys.Count() == 0) return null;
+
             var cacheItems = _storage.Gets(keys);
-            if (cacheItems?.Count() > 0)
+            if (cacheItems?.Count() == keys.Count())
             {
                 return cacheItems;
             }
@@ -150,16 +156,22 @@ namespace HD.EFCore.Extensions.Cache
             if (entitys != null && entitys.Count() > 0)
             {
                 var dict = entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => Map(v));
-                _storage.Sets(dict);
-                return dict.Values;
+                if (dict != null && dict.Count > 0 && dict.Any(q => q.Value != null))
+                {
+                    dict = dict.Where(q => q.Value != null).ToDictionary(k => k.Key, v => v.Value);
+                    cacheItems = dict.Values;
+                    _storage.Sets(dict);
+                }
             }
-            return null;
+            return cacheItems;
         }
 
         public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression)
         {
+            if (keys == null || keys.Count() == 0) return null;
+
             var cacheItems = _storage.Gets(keys);
-            if (cacheItems?.Count() > 0)
+            if (cacheItems?.Count() == keys.Count())
             {
                 return cacheItems;
             }
@@ -168,10 +180,14 @@ namespace HD.EFCore.Extensions.Cache
             if (entitys != null && entitys.Count() > 0)
             {
                 var dict = entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k).First().Value), v => Map(v));
-                _storage.Sets(dict);
-                return dict.Values;
+                if (dict != null && dict.Count > 0 && dict.Any(q => q.Value != null))
+                {
+                    dict = dict.Where(q => q.Value != null).ToDictionary(k => k.Key, v => v.Value);
+                    cacheItems = dict.Values;
+                    _storage.Sets(dict);
+                }
             }
-            return null;
+            return cacheItems;
         }
 
 
