@@ -34,6 +34,17 @@ namespace HD.EFCore.Extensions.Test
                 var mm1 = cache2.Gets(db, keys)?.ToList();
                 var mm2 = cache2.Gets(db, keys, q => keys.Contains(q.Id))?.ToList();
 
+                var b = new Blog
+                {
+                    Title = "ttt",
+                    Body = "body",
+                    UserId = 100,
+                    CreateTime = DateTime.Now
+                };
+                db.Blog.Add(b);
+                db.SaveChanges();
+                db.Blog.Remove(b);
+                db.SaveChanges();
             }
         }
 

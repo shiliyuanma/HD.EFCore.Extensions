@@ -1,6 +1,10 @@
-﻿using HD.EFCore.Extensions.Test.Data.Mapping;
+﻿using EntityFrameworkCore.PrimaryKey;
+using HD.EFCore.Extensions.Cache;
+using HD.EFCore.Extensions.Test.Data.Mapping;
 using HD.EFCore.Extensions.Test.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,30 +36,12 @@ namespace HD.EFCore.Extensions.Test.Data
 
         public override int SaveChanges()
         {
-            this.ChangeTracker.DetectChanges();
-            var changedEntityNames = this.GetChangedEntityNames();
-
-            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
-            var result = base.SaveChanges();
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            //todo 重置缓存
-            
-            return result;
+            return this.SaveChangesWithCache();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            this.ChangeTracker.DetectChanges();
-            var changedEntityNames = this.GetChangedEntityNames();
-
-            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
-            var result = base.SaveChangesAsync(cancellationToken);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            //todo 重置缓存
-
-            return result;
+            return this.SaveChangesWithCacheAsync();
         }
     }
 }
