@@ -29,5 +29,7 @@ namespace HD.EFCore.Extensions.Cache
 
         bool Remove(TPrimaryKey key);
         bool Removes(IEnumerable<TPrimaryKey> keys);
+
+        TCacheItem Map(TEntity entity);
     }
 }

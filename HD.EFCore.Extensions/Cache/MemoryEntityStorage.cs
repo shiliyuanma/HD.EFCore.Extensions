@@ -9,8 +9,10 @@ namespace HD.EFCore.Extensions.Cache
     {
         static readonly ConcurrentDictionary<string, object> cache = new ConcurrentDictionary<string, object>();
 
-        public MemoryEntityStorage()
+        EntityCacheOptions _options;
+        public MemoryEntityStorage(IOptions<EntityCacheOptions> options)
         {
+            _options = options.Value;
         }
 
         public TEntity Get(TPrimaryKey key)
@@ -77,23 +79,9 @@ namespace HD.EFCore.Extensions.Cache
             return true;
         }
 
-        private string GenKey(TPrimaryKey key)
+        protected virtual string GenKey(TPrimaryKey key)
         {
-            return $"Entity:{typeof(TEntity).Name}:{key}";
-        }
-    }
-
-    public class MemoryEntityStorage<TEntity, TPrimaryKey, TCacheItem> : MemoryEntityStorage<TEntity, TPrimaryKey>, IEntityStorage<TEntity, TPrimaryKey, TCacheItem> where TEntity : class where TCacheItem : class
-    {
-        EntityCacheOptions _options;
-        public MemoryEntityStorage(IOptions<EntityCacheOptions> options)
-        {
-            _options = options.Value;
-        }
-
-        public TCacheItem Map(TEntity entity)
-        {
-            return _options.Map != null ? _options.Map(typeof(TEntity), entity) as TCacheItem : default(TCacheItem);
+            return $"{_options.CachePrefix}:EntityCache:{typeof(TEntity).Name}:{key}";
         }
     }
 }

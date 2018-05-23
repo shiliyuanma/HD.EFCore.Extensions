@@ -1,4 +1,4 @@
-﻿namespace HD.EFCore.Extensions.Test.Cache
+﻿namespace HD.EFCore.Extensions.Test.CacheItem
 {
     public class BlogItem
     {

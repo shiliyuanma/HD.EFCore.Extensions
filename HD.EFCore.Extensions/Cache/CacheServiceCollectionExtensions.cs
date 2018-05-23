@@ -14,10 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (options.Get != null && options.Set != null && options.Del != null)
             {
                 services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,>), typeof(OutEntityStorage<,>)));
-                services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,,>), typeof(OutEntityStorage<,,>)));
             }
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,>), typeof(MemoryEntityStorage<,>)));
-            services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,,>), typeof(MemoryEntityStorage<,,>)));
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,>), typeof(EntityCache<,>)));
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,,>), typeof(EntityCache<,,>)));
 

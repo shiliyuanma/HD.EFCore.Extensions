@@ -16,9 +16,4 @@ namespace HD.EFCore.Extensions.Cache
 
         bool Removes(IEnumerable<TPrimaryKey> keys);
     }
-
-    public interface IEntityStorage<TEntity, TPrimaryKey, TCacheItem> : IEntityStorage<TEntity, TPrimaryKey> where TEntity : class where TCacheItem : class
-    {
-        TCacheItem Map(TEntity entity);
-    }
 }

@@ -1,10 +1,11 @@
 ﻿using EntityFrameworkCore.PrimaryKey;
+using HD.EFCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace HD.EFCore.Extensions.Cache
 {
@@ -24,7 +25,7 @@ namespace HD.EFCore.Extensions.Cache
                 return entity;
             }
 
-            entity = db.Set<TEntity>().FirstOrDefault(CreateEqualityExpressionForId(key, keyName));
+            entity = db.Set<TEntity>().FirstOrDefault(ExpressionHelper.CreateEqualityExpressionForId<TEntity, TPrimaryKey>(key, keyName));
             if (entity != null)
             {
                 _storage.Set(key, entity);
@@ -56,7 +57,7 @@ namespace HD.EFCore.Extensions.Cache
                 return entitys;
             }
 
-            entitys = db.Set<TEntity>().Where(CreateContainsExpressionForId(keys, keyName)).ToList();
+            entitys = db.Set<TEntity>().Where(ExpressionHelper.CreateContainsExpressionForId<TEntity, TPrimaryKey>(keys, keyName)).ToList();
             if (entitys != null && entitys.Count() > 0)
             {
                 _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => v));
@@ -89,106 +90,91 @@ namespace HD.EFCore.Extensions.Cache
         {
             return _storage.Removes(keys);
         }
-
-        private Expression<Func<TEntity, bool>> CreateEqualityExpressionForId(TPrimaryKey id, string keyName = "Id")
-        {
-            var lambdaParam = Expression.Parameter(typeof(TEntity));
-
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(id, typeof(TPrimaryKey))
-                );
-
-            return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
-        }
-
-        private Expression<Func<TEntity, bool>> CreateContainsExpressionForId(IEnumerable<TPrimaryKey> ids, string keyName = "Id")
-        {
-            var parameterExp = Expression.Parameter(typeof(TEntity), "type");
-            var propertyExp = Expression.Property(parameterExp, keyName);
-            var method = typeof(IEnumerable<TPrimaryKey>).GetMethod("Contains", new[] { typeof(IEnumerable<TPrimaryKey>) });
-            var someValue = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
-            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
-
-            return Expression.Lambda<Func<TEntity, bool>>(containsMethodExp, parameterExp);
-        }
     }
 
     public class EntityCache<TEntity, TPrimaryKey, TCacheItem> : IEntityCache<TEntity, TPrimaryKey, TCacheItem> where TEntity : class where TCacheItem : class
     {
-        IEntityStorage<TEntity, TPrimaryKey, TCacheItem> _storage;
-        public EntityCache(IEntityStorage<TEntity, TPrimaryKey, TCacheItem> storage)
+        EntityCacheOptions _options;
+        IEntityStorage<TCacheItem, TPrimaryKey> _storage;
+        public EntityCache(IOptions<EntityCacheOptions> options, IEntityStorage<TCacheItem, TPrimaryKey> storage)
         {
+            _options = options.Value;
             _storage = storage;
         }
 
         public TCacheItem Get(DbContext db, TPrimaryKey key, string keyName = "Id")
         {
-            var entity = _storage.Get(key);
-            if (entity != null)
+            var cacheItem = _storage.Get(key);
+            if (cacheItem != null)
             {
-                return _storage.Map(entity);
+                return cacheItem;
             }
 
-            entity = db.Set<TEntity>().FirstOrDefault(CreateEqualityExpressionForId(key, keyName));
+            var entity = db.Set<TEntity>().FirstOrDefault(ExpressionHelper.CreateEqualityExpressionForId<TEntity, TPrimaryKey>(key, keyName));
             if (entity != null)
             {
-                _storage.Set(key, entity);
-                return _storage.Map(entity);
+                cacheItem = Map(entity);
+                _storage.Set(key, cacheItem);
+                return cacheItem;
             }
             return null;
         }
 
         public TCacheItem Get(DbContext db, TPrimaryKey key, Expression<Func<TEntity, bool>> expression)
         {
-            var entity = _storage.Get(key);
-            if (entity != null)
+            var cacheItem = _storage.Get(key);
+            if (cacheItem != null)
             {
-                return _storage.Map(entity);
+                return cacheItem;
             }
 
-            entity = db.Set<TEntity>().FirstOrDefault(expression);
+            var entity = db.Set<TEntity>().FirstOrDefault(expression);
             if (entity != null)
             {
-                _storage.Set(key, entity);
-                return _storage.Map(entity);
+                cacheItem = Map(entity);
+                _storage.Set(key, cacheItem);
+                return cacheItem;
             }
             return null;
         }
 
         public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, string keyName = "Id")
         {
-            var entitys = _storage.Gets(keys);
-            if (entitys?.Count() > 0)
+            var cacheItems = _storage.Gets(keys);
+            if (cacheItems?.Count() > 0)
             {
-                return entitys.Select(q => _storage.Map(q));
+                return cacheItems;
             }
 
-            entitys = db.Set<TEntity>().Where(CreateContainsExpressionForId(keys, keyName)).ToList();
+            var entitys = db.Set<TEntity>().Where(ExpressionHelper.CreateContainsExpressionForId<TEntity, TPrimaryKey>(keys, keyName)).ToList();
             if (entitys != null && entitys.Count() > 0)
             {
-                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => v));
-                return entitys.Select(q => _storage.Map(q));
+                var dict = entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k)[keyName]), v => Map(v));
+                _storage.Sets(dict);
+                return dict.Values;
             }
             return null;
         }
 
         public IEnumerable<TCacheItem> Gets(DbContext db, IEnumerable<TPrimaryKey> keys, Expression<Func<TEntity, bool>> expression)
         {
-            var entitys = _storage.Gets(keys);
-            if (entitys?.Count() > 0)
+            var cacheItems = _storage.Gets(keys);
+            if (cacheItems?.Count() > 0)
             {
-                return entitys.Select(q => _storage.Map(q));
+                return cacheItems;
             }
 
-            entitys = db.Set<TEntity>().Where(expression).ToList();
+            var entitys = db.Set<TEntity>().Where(expression).ToList();
             if (entitys != null && entitys.Count() > 0)
             {
-                _storage.Sets(entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k).First().Value), v => v));
-                return entitys.Select(q => _storage.Map(q));
+                var dict = entitys.ToDictionary(k => (TPrimaryKey)(db.GetPrimaryKey(k).First().Value), v => Map(v));
+                _storage.Sets(dict);
+                return dict.Values;
             }
             return null;
         }
+
+
 
         public bool Remove(TPrimaryKey key)
         {
@@ -200,27 +186,9 @@ namespace HD.EFCore.Extensions.Cache
             return _storage.Removes(keys);
         }
 
-        private Expression<Func<TEntity, bool>> CreateEqualityExpressionForId(TPrimaryKey id, string keyName = "Id")
+        public TCacheItem Map(TEntity entity)
         {
-            var lambdaParam = Expression.Parameter(typeof(TEntity));
-
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, keyName),
-                Expression.Constant(id, typeof(TPrimaryKey))
-                );
-
-            return Expression.Lambda<Func<TEntity, bool>>(lambdaBody, lambdaParam);
-        }
-
-        private Expression<Func<TEntity, bool>> CreateContainsExpressionForId(IEnumerable<TPrimaryKey> ids, string keyName = "Id")
-        {
-            var parameterExp = Expression.Parameter(typeof(TEntity), "type");
-            var propertyExp = Expression.Property(parameterExp, keyName);
-            var method = typeof(IEnumerable<TPrimaryKey>).GetMethod("Contains", new[] { typeof(IEnumerable<TPrimaryKey>) });
-            var someValue = Expression.Constant(ids, typeof(IEnumerable<TPrimaryKey>));
-            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
-
-            return Expression.Lambda<Func<TEntity, bool>>(containsMethodExp, parameterExp);
+            return _options.Map != null ? _options.Map(typeof(TEntity), entity) as TCacheItem : default(TCacheItem);
         }
     }
 }

@@ -5,13 +5,15 @@ namespace HD.EFCore.Extensions.Cache
 {
     public class EntityCacheOptions
     {
-        public Func<string, object> Get;
+        public string CachePrefix { get; set; } = "";
 
-        public Func<IEnumerable<string>, IEnumerable<object>> Gets;
+        public Func<Type, string, object> Get;
+
+        public Func<Type, IEnumerable<string>, IEnumerable<object>> Gets;
 
         public Func<string, object, bool> Set;
 
-        public Func<IEnumerable<string>, IEnumerable<object>, bool> Sets;
+        public Func<Dictionary<string, object>, bool> Sets;
 
         public Func<string, bool> Del;
 

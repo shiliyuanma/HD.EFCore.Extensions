@@ -14,7 +14,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public TEntity Get(TPrimaryKey key)
         {
-            return _options.Get(GenKey(key)) as TEntity;
+            return _options.Get(typeof(TEntity), GenKey(key)) as TEntity;
         }
 
         public IEnumerable<TEntity> Gets(IEnumerable<TPrimaryKey> keys)
@@ -27,7 +27,7 @@ namespace HD.EFCore.Extensions.Cache
             var result = new List<TEntity>();
             if (_options.Gets != null)
             {
-                result = _options.Gets(keys.Select(q => GenKey(q)))?.Select(q => q as TEntity).ToList();
+                result = _options.Gets(typeof(TEntity), keys.Select(q => GenKey(q)))?.Select(q => q as TEntity).ToList();
             }
             else
             {
@@ -55,7 +55,7 @@ namespace HD.EFCore.Extensions.Cache
 
             if (_options.Sets != null)
             {
-                return _options.Sets(entitys.Select(q => GenKey(q.Key)), entitys.Select(q => q.Value));
+                return _options.Sets(entitys.ToDictionary(k => GenKey(k.Key), v => (object)v));
             }
             else
             {
@@ -86,23 +86,9 @@ namespace HD.EFCore.Extensions.Cache
             return true;
         }
 
-        private string GenKey(TPrimaryKey key)
+        protected virtual string GenKey(TPrimaryKey key)
         {
-            return $"Entity:{typeof(TEntity).Name}:{key}";
-        }
-    }
-
-    public class OutEntityStorage<TEntity, TPrimaryKey, TCacheItem> : OutEntityStorage<TEntity, TPrimaryKey>, IEntityStorage<TEntity, TPrimaryKey, TCacheItem> where TEntity : class where TCacheItem : class
-    {
-        EntityCacheOptions _options;
-        public OutEntityStorage(IOptions<EntityCacheOptions> options) : base(options)
-        {
-            _options = options.Value;
-        }
-
-        public TCacheItem Map(TEntity entity)
-        {
-            return _options.Map != null ? _options.Map(typeof(TEntity), entity) as TCacheItem : default(TCacheItem);
+            return $"{_options.CachePrefix}:EntityCache:{typeof(TEntity).Name}:{key}";
         }
     }
 }
