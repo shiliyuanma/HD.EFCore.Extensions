@@ -15,6 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,>), typeof(OutEntityStorage<,>)));
             }
+            CacheHelper.Options = options;
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityStorage<,>), typeof(MemoryEntityStorage<,>)));
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,>), typeof(EntityCache<,>)));
             services.TryAdd(ServiceDescriptor.Transient(typeof(IEntityCache<,,>), typeof(EntityCache<,,>)));

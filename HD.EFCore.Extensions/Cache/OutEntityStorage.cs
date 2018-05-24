@@ -14,7 +14,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public TEntity Get(TPrimaryKey key)
         {
-            return _options.Get(typeof(TEntity), GenKey(key)) as TEntity;
+            return _options.Get(typeof(TEntity), CacheHelper.GenKey<TEntity, TPrimaryKey>(key)) as TEntity;
         }
 
         public IEnumerable<TEntity> Gets(IEnumerable<TPrimaryKey> keys)
@@ -27,7 +27,7 @@ namespace HD.EFCore.Extensions.Cache
             var result = new List<TEntity>();
             if (_options.Gets != null)
             {
-                result = _options.Gets(typeof(TEntity), keys.Select(q => GenKey(q)))?.Select(q => q as TEntity).ToList();
+                result = _options.Gets(typeof(TEntity), keys.Select(q => CacheHelper.GenKey<TEntity, TPrimaryKey>(q)))?.Select(q => q as TEntity).ToList();
             }
             else
             {
@@ -43,7 +43,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public bool Set(TPrimaryKey key, TEntity entity)
         {
-            return _options.Set(GenKey(key), entity);
+            return _options.Set(CacheHelper.GenKey<TEntity, TPrimaryKey>(key), entity);
         }
 
         public bool Sets(Dictionary<TPrimaryKey, TEntity> entitys)
@@ -55,7 +55,7 @@ namespace HD.EFCore.Extensions.Cache
 
             if (_options.Sets != null)
             {
-                return _options.Sets(entitys.ToDictionary(k => GenKey(k.Key), v => (object)v));
+                return _options.Sets(entitys.ToDictionary(k => CacheHelper.GenKey<TEntity, TPrimaryKey>(k.Key), v => (object)v));
             }
             else
             {
@@ -69,7 +69,7 @@ namespace HD.EFCore.Extensions.Cache
 
         public bool Remove(TPrimaryKey key)
         {
-            return _options.Del(GenKey(key));
+            return _options.Del(CacheHelper.GenKey<TEntity, TPrimaryKey>(key));
         }
 
         public bool Removes(IEnumerable<TPrimaryKey> keys)
@@ -84,11 +84,6 @@ namespace HD.EFCore.Extensions.Cache
                 Remove(key);
             }
             return true;
-        }
-
-        protected virtual string GenKey(TPrimaryKey key)
-        {
-            return $"{_options.CachePrefix}:EntityCache:{typeof(TEntity).Name}:{key}";
         }
     }
 }

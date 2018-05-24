@@ -104,6 +104,15 @@ namespace HD.EFCore.Extensions.Cache
         {
             _options = options.Value;
             _storage = storage;
+            CacheHelper.EntityMapCacheItems.AddOrUpdate(typeof(TEntity), new List<Type> { typeof(TCacheItem) }, (k, v) =>
+            {
+                if (v == null) v = new List<Type>();
+                if (!v.Contains(typeof(TCacheItem)))
+                {
+                    v.Add(typeof(TCacheItem));
+                }
+                return v;
+            });
         }
 
         public TCacheItem Get(DbContext db, TPrimaryKey key, string keyName = "Id")
