@@ -45,6 +45,10 @@ namespace HD.EFCore.Extensions.Test
                 db.SaveChanges();
                 db.Blog.Remove(b);
                 db.SaveChanges();
+
+                b = db.Blog.FirstOrDefault(q => q.Id == 1);
+                db.Blog.Remove(b);
+                db.SaveChanges();
             }
         }
 

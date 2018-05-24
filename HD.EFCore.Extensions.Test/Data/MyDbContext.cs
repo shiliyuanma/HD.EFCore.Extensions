@@ -1,10 +1,7 @@
-﻿using EntityFrameworkCore.PrimaryKey;
-using HD.EFCore.Extensions.Cache;
+﻿using HD.EFCore.Extensions.Cache;
 using HD.EFCore.Extensions.Test.Data.Mapping;
 using HD.EFCore.Extensions.Test.Entity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,12 +33,14 @@ namespace HD.EFCore.Extensions.Test.Data
 
         public override int SaveChanges()
         {
-            return this.SaveChangesWithCache();
+            this.PreSaveChangesForEntityCache();
+            return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return this.SaveChangesWithCacheAsync();
+            this.PreSaveChangesForEntityCache();
+            return base.SaveChangesAsync();
         }
     }
 }
