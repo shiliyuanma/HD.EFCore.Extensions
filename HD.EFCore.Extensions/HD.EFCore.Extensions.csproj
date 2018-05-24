@@ -4,8 +4,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>huangdong</Authors>
     <Company>huangdong</Company>
-    <Description>实现实体缓存的功能，完美了</Description>
-    <Version>1.0.1</Version>
+    <Description>1.DbContextPoll的主从注入
+2.UnitOfWork
+3.EntityCache</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

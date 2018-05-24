@@ -55,7 +55,7 @@ namespace HD.EFCore.Extensions.Cache
 
             if (_options.Sets != null)
             {
-                return _options.Sets(entitys.ToDictionary(k => CacheHelper.GenKey<TEntity, TPrimaryKey>(k.Key), v => (object)v));
+                return _options.Sets(entitys.ToDictionary(k => CacheHelper.GenKey<TEntity, TPrimaryKey>(k.Key), v => (object)v.Value));
             }
             else
             {
