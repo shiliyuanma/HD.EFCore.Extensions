@@ -4,8 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>huangdong</Authors>
     <Company>huangdong</Company>
-    <Description>1.扩展DbContextPool，使其支持多DbContext注入。
-2.实现简易版的UnitOfWork模型。</Description>
+    <Description>实现实体缓存的功能，完美了</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
