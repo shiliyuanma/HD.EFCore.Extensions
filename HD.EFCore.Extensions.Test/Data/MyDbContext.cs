@@ -33,7 +33,7 @@ namespace HD.EFCore.Extensions.Test.Data
 
         public override int SaveChanges()
         {
-            this.PreSaveChangesForEntityCache();
+            this.PreSaveChangesForEntityCacheAsync();
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
             var res = base.SaveChanges();
             this.ChangeTracker.AutoDetectChangesEnabled = true;
@@ -42,7 +42,7 @@ namespace HD.EFCore.Extensions.Test.Data
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            this.PreSaveChangesForEntityCache();
+            this.PreSaveChangesForEntityCacheAsync();
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
             return base.SaveChangesAsync().ContinueWith(t=> 
             {
